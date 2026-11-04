@@ -5,16 +5,30 @@ library ( library ggrepel), it prevents label and text from overalping from each
 library(dplyr) # it's basic package for calculation i guess this one is present in the umbrella of tidyverse
 library(sf), # this handles representation, manipulation and analysis of spatial vector data in R - we are mainly using st_transform() - which to transform coordinate system , we are also gonna use the geom_sf() in the ggplot to plot map easily and create layers from the data we get from the rnaturalearth and our own personalised data 
 library(rnaturalearth), # it's a public domaine set of world map and geospatial datasets 
-now the codes start
+#now the codes start
 first of we are getting the world map data from ne_ coutnries function which is present in rnaturalearth 
 world<-ne_countries(scale="medium", returnclass="sf") # why do we keep the scale and returnclass like this this is more like a factory setting as it strikes a perfect balance between computer performance and coding copatibility
 there three scales present- medium is a sweet spot to be in 
 retunclass =sf as R uses old package sp, to manage spatial data and we want it to be simple features data as it will act like a normal or regular data set 
-we are gonna use pipeline function a lot in this coding, which is present in dplyr package 
-next code we are filtering the whole world map to only two continent which is Europe and North America gonn
-a save it to Filter_world
+#we are gonna use pipeline function a lot in this coding, which is present in dplyr package 
+#next code we are filtering the whole world map to only two continent which is Europe and North America gonn
+#a save it to Filter_world
 Filterworld<-world%>%filter(continent%in%c("Europe", "North America")
-we want Mollweide projection in our map - which mainly use to display global distributions , thematic data and any visualization where we need to show correct proportional size of landmasses , here target_crs - a user define variable name storing the projection string so it can be passed into spatial transformation functions 
+#we want Mollweide projection in our map - which mainly use to display global distributions , thematic data and any #visualization where we need to show correct proportional size of landmasses , here target_crs - a user define variable name #storing the projection string so it can be passed into spatial transformation functions 
 target_crs<-"+proj=moll"
-next i wanna see the changes i have made so far in the open data which filtered and saved it as filterworld 
-plot
+#next i wanna see the changes i have made so far in the open data which #filtered and saved it as filterworld 
+plot(st_geometry(Filter_world), col="lightblue",border="darkgrey") # st_geometry is more like a superpower when plotting as it ensures that we only get the plot with the geometric shapes without creating a separte plot panel for every single attribute column in the dataset 
+# this step is unnecessary i have only run to see if i could see two continents only or not 
+# now the first layer is ready and we have already see it with the print(plot) funtion, so now we need to prepare the second layer which will be the actual data we have 
+# load the data set , as we are dealing with the spatial data here and geometry , it is prett important to have two column longitude and latitude which we work with next 
+# in my data set i had few rows with the not sure for the location so i need to filter it to only two continent 
+studies <-worldmap%>%filter(continent%in%c("Europe", "North America"))
+#we can check with the follwing function we have something other than what we have filterd out  
+unique(worldmap$continent) 
+#now my data set had few of the blank row in the longitude and latitude columns 
+Studeis <- studies %>% filter(~is.na(Latitude),!is.na(Longitude))
+#here !is.na is something like we ask if there are any NAs or missing values are there if yes it will remove it with the filter functio n
+studies_sf<-st_as_sf(Studies,coords=c("Longitude","Latitude"),crs=4326, remove =FALSE)
+#we are putting coords - in a way that x is longi, and y is lati, here the crs number is the standard GPS coordinate system, and putting remove as false as R will automatically remove these columns  and convert them into one column as a geometry which we don't want the function for that we will use in maping which is geom_sf()
+
+
