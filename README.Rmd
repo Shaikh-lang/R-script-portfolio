@@ -30,5 +30,14 @@ Studeis <- studies %>% filter(~is.na(Latitude),!is.na(Longitude))
 #here !is.na is something like we ask if there are any NAs or missing values are there if yes it will remove it with the filter functio n
 studies_sf<-st_as_sf(Studies,coords=c("Longitude","Latitude"),crs=4326, remove =FALSE)
 #we are putting coords - in a way that x is longi, and y is lati, here the crs number is the standard GPS coordinate system, and putting remove as false as R will automatically remove these columns  and convert them into one column as a geometry which we don't want the function for that we will use in maping which is geom_sf()
-
+# now we are movin toward further base setup for the map , now we need to remember that we have two data set to work with here - that is why most of the itme we are doign something for both of the data set and using the same code twice 
+# now we are reprojecting the data set- st_transform in to target_crs, use the following code for both of the data - 
+Filter_world<-st_transform(Filter_world,crs = target_crs)
+#target_crs treats the projected coordinate system as a flat surface as we cannot see 3D graph in R simple 
+#ggplot 
+P1<-ggplot()+geom_sf(data = Filter_world,fill="lightblue",colour="darkgrey")+
+  geom_sf(data=studies_sf,aes(fill="area",colour=Technique),size=2)+
+  geom_text_repel(data = studies_sf,aes(x=X,y=Y,label = City, geometry=geometry),size = 2.5, max.overalp=20)+
+  coord_sf(xlim = c(-130,40),ylim = c(25,72), default_crs = sf::st_crs(4326))+
+labs(title = "Europe-North America",x="Longitude", y="Latitude",colour="Technique")
 
